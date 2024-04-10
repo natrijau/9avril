@@ -106,7 +106,7 @@ void	ft_eating(t_philosophers *philo)
 	struct timeval my_time;
   	long int current_time;
 	gettimeofday(&my_time, NULL);
-	current_time = (my_time.tv_sec * 1000) + (my_time.tv_usec / 1000);	
+	current_time = (my_time.tv_sec * 1000) + (my_time.tv_usec / 1000);
 	if (philo->time_to_die <= philo->time_to_eat)
 	{
 		printf("%ld\tLe philosophe %d take fork ! \n",current_time - philo->start_time,  philo->id_philosphers);
@@ -116,13 +116,13 @@ void	ft_eating(t_philosophers *philo)
 		philo->end_time += philo->time_to_die / 1000;
 		pthread_mutex_lock(&philo->print);
 		philo->data->dead_id += 1;
-		printf("%ld Le philosophe %d est MORTTTTTTTTTTTT !\n", philo->end_time, philo->id_philosphers);
+		if (philo->data->dead_id == 1)
+			printf("%ld Le philosophe %d est MORTTTTTTTTTTTT !\n", philo->end_time, philo->id_philosphers);
 		pthread_mutex_unlock(&philo->print);
 		
 		pthread_mutex_unlock(&philo->my_fork);
 		pthread_mutex_unlock(philo->next_fork);
 		return ;
-
 	}	
 	pthread_mutex_lock(&philo->print);
 	if (philo->data->dead_id == 0)
@@ -133,7 +133,7 @@ void	ft_eating(t_philosophers *philo)
 		usleep(philo->time_to_eat);
 	}
 	philo->number_of_times_each_philosopher_must_eat--;
-	philo->start_dead = philo->time_to_eat / 1000;
+	philo->start_dead = philo->time_to_eat;
 	pthread_mutex_unlock(&philo->print);
 	pthread_mutex_unlock(&philo->my_fork);
 	pthread_mutex_unlock(philo->next_fork);
@@ -148,12 +148,20 @@ void	sleeping(t_philosophers *philo)
 	gettimeofday(&my_time, NULL);
 	current_time = (my_time.tv_sec * 1000) + (my_time.tv_usec / 1000);
 	// check_dead(philo, 1);
-	// printf("fonction sleeping\n%ld\tphilo->start_dead  %d philo->time_to_die\n",philo->start_dead  ,  philo->time_to_die);
 	
-	if (philo->start_dead + (philo->time_to_sleep / 1000) > philo->time_to_die / 1000)
+	if (philo->start_dead + philo->time_to_sleep >= philo->time_to_die)
 	{
-		philo->end_time = philo->time_to_die / 1000;
+		// printf("fonction sleeping\n\tphilo->start_dead + philo->time_to_sleep %ld =? %d philo->time_to_die\nphilo->data->dead_id %d\n", philo->start_dead + philo->time_to_sleep, philo->time_to_die, philo->data->dead_id);
 		philo->data->dead_id += 1;
+		// philo->end_time += philo->time_to_die / 1000;
+		// pthread_mutex_lock(&philo->print);
+		// printf("%ld\tLe philosophe %d start sleep !\n",current_time - philo->start_time, philo->id_philosphers);
+		// pthread_mutex_unlock(&philo->print);
+		// pthread_mutex_lock(&philo->print);
+		// if (philo->data->dead_id == 1)
+			// printf("%ld Le philosophe %d est MORTTTTTTTTTTTT !\n", philo->end_time, philo->id_philosphers);
+		// pthread_mutex_unlock(&philo->print);
+		return ;
 	}
 	if (philo->data->dead_id == 0)
 	{
@@ -204,42 +212,17 @@ void	*round_table(void *arg)
 		ft_eating(philo);					
 		sleeping(philo);
 		thinking(philo);
-		// if (philo->data->dead_id == 0)
-		// pthread_mutex_lock(&philo->print);
-		// if (philo->data->dead_id == 1)
-		// {
-		// 	printf("%ld\teating Le philosophe %d est mort !\n", philo->end_time, philo->id_philosphers);
-		// 	philo->data->dead_id += 1;
-		// 	pthread_mutex_unlock(&philo->print);
-		// 	break;
-		// }	
-		// pthread_mutex_unlock(&philo->print);	
 		// if(philo->number_of_times_each_philosopher_must_eat == 0)
 		// 	break;
-		// if (philo->data->dead_id == 0)
-		// pthread_mutex_lock(&philo->print);
-		// if (philo->data->dead_id == 1)
-		// {
-		// 	printf("%ld\tsleep Le philosophe %d est mort !\n", philo->end_time, philo->id_philosphers);
-		// 	philo->data->dead_id = 1;
-		// 	pthread_mutex_unlock(&philo->print);
-		// 	usleep(42);
-		// 	philo->end_time = philo->time_to_die / 1000;
-		// 	break;
-		// }
-		// pthread_mutex_unlock(&philo->print);
-		// if (philo->data->dead_id == 0)
-		// pthread_mutex_lock(&philo->print);
-		// if (philo->data->dead_id == 1)
-		// {
-		// 	philo->data->dead_id += 1;
-		// 	printf("%ld\tthink Le philosophe %d est mort !\n", philo->end_time, philo->id_philosphers);
-		// 	pthread_mutex_unlock(&philo->print);
-		// 	break;
-		// }
-		// pthread_mutex_unlock(&philo->print);
-		if (philo->data->dead_id != 0)
+		
+		pthread_mutex_lock(&philo->print);
+		printf("philo->data->dead_id %d\n", philo->data->dead_id);
+		if (philo->data->dead_id > 0)
+		{
+			pthread_mutex_unlock(&philo->print);
 			break;
+		}
+		pthread_mutex_unlock(&philo->print);
 	}
 	
 	pthread_exit(EXIT_SUCCESS);	
@@ -248,7 +231,7 @@ void	*round_table(void *arg)
 int	get_thread(t_data *data)
 {
 	unsigned int	num_fork;
-
+	
 	num_fork = data->data_philo->number_of_philosophers;
 	while (num_fork > 0)
 	{
