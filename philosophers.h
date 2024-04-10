@@ -33,7 +33,6 @@ typedef struct s_philosophers
 	long int		start_time;
 	long int		end_time;
 	long int		start_dead;
-	// bool			alive;
 	pthread_t		thread_philo;
 	pthread_mutex_t	my_fork;
 	pthread_mutex_t	*next_fork;
@@ -44,12 +43,6 @@ typedef struct s_philosophers
 typedef struct s_data
 {
 	int				dead_id;
-	// bool			alive;
-	// pthread_t		thread;
-	pthread_mutex_t	mutex;
-	pthread_mutex_t	*eat;
-	pthread_mutex_t	*dead;
-	pthread_mutex_t	print;
 	t_philosophers	*data_philo;
 } t_data;
 

@@ -6,7 +6,7 @@
 /*   By: natrijau <natrijau@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/27 12:05:00 by natrijau          #+#    #+#             */
-/*   Updated: 2024/04/09 15:57:15 by natrijau         ###   ########.fr       */
+/*   Updated: 2024/04/10 17:58:36 by natrijau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@ void	init_philo(t_data *data, char **av)
 	mutex = malloc(sizeof(pthread_mutex_t) * number_philo);
 	data->data_philo = malloc(sizeof(t_philosophers) * number_philo);
 	data->dead_id = 0;
+	data->data_philo->thread_philo = (pthread_t )malloc(sizeof(pthread_t) * number_philo);
+	// pthread_mutex_init(&data->data_philo->my_fork, NULL);
+	// pthread_mutex_init(&data->data_philo->print, NULL);
 	i = 0;
 	while (i < number_philo)
 	{
